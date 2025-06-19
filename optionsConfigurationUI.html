@@ -1,0 +1,206 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Comp Builder - Options</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { font-size: 24px; }
+    section { margin-bottom: 20px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 5px 0; }
+    button { margin-left: 5px; }
+    #status { color: green; height: 1em; }
+    input[type="text"] { padding: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Options</h1>
+  <section id="categories-section">
+    <h2>Categories</h2>
+    <ul id="categories-list"></ul>
+    <input type="text" id="new-category-input" placeholder="New category" />
+    <button id="add-category-btn">Add Category</button>
+  </section>
+  <section id="tags-section">
+    <h2>Tags</h2>
+    <ul id="tags-list"></ul>
+    <input type="text" id="new-tag-input" placeholder="New tag" />
+    <button id="add-tag-btn">Add Tag</button>
+  </section>
+  <section id="export-settings-section">
+    <h2>Export Settings</h2>
+    <label>CSV Delimiter: <input type="text" id="csv-delimiter" maxlength="1" size="1" /></label>
+  </section>
+  <section id="misc-section">
+    <h2>Miscellaneous</h2>
+    <button id="clear-data-btn">Clear All Data</button>
+  </section>
+  <div id="status"></div>
+  <script>
+    (function() {
+      'use strict';
+      const storage = chrome.storage.local;
+      let categories = [];
+      let tags = [];
+      let exportSettings = { delimiter: ',' };
+      const statusEl = document.getElementById('status');
+      const categoriesListEl = document.getElementById('categories-list');
+      const tagsListEl = document.getElementById('tags-list');
+      const newCategoryInput = document.getElementById('new-category-input');
+      const newTagInput = document.getElementById('new-tag-input');
+      const addCategoryBtn = document.getElementById('add-category-btn');
+      const addTagBtn = document.getElementById('add-tag-btn');
+      const csvDelimiterInput = document.getElementById('csv-delimiter');
+      const clearDataBtn = document.getElementById('clear-data-btn');
+
+      function showStatus(message) {
+        statusEl.textContent = message;
+        setTimeout(() => statusEl.textContent = '', 2000);
+      }
+
+      function renderList(items, listEl, onDelete, onEdit) {
+        listEl.innerHTML = '';
+        items.forEach((item, index) => {
+          const li = document.createElement('li');
+          const span = document.createElement('span');
+          span.textContent = item;
+          li.appendChild(span);
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Edit';
+          editBtn.addEventListener('click', () => onEdit(index, item));
+          li.appendChild(editBtn);
+          const delBtn = document.createElement('button');
+          delBtn.textContent = 'Delete';
+          delBtn.addEventListener('click', () => onDelete(index, item));
+          li.appendChild(delBtn);
+          listEl.appendChild(li);
+        });
+      }
+
+      function initOptions() {
+        storage.get(
+          { categories: [], tags: [], exportSettings: { delimiter: ',' } },
+          data => {
+            categories = Array.isArray(data.categories) ? data.categories : [];
+            tags = Array.isArray(data.tags) ? data.tags : [];
+            exportSettings = data.exportSettings && data.exportSettings.delimiter
+              ? { delimiter: data.exportSettings.delimiter }
+              : { delimiter: ',' };
+            renderList(categories, categoriesListEl, deleteCategory, editCategory);
+            renderList(tags, tagsListEl, deleteTag, editTag);
+            csvDelimiterInput.value = exportSettings.delimiter;
+          }
+        );
+      }
+
+      function saveCategories() {
+        storage.set({ categories }, () => showStatus('Categories saved'));
+      }
+
+      function saveTags() {
+        storage.set({ tags }, () => showStatus('Tags saved'));
+      }
+
+      function saveExportSettings() {
+        let d = csvDelimiterInput.value;
+        if (!d) {
+          d = ',';
+        } else if (d.length > 1) {
+          d = d.charAt(0);
+        }
+        csvDelimiterInput.value = d;
+        exportSettings.delimiter = d;
+        storage.set({ exportSettings }, () => showStatus('Export settings saved'));
+      }
+
+      addCategoryBtn.addEventListener('click', () => {
+        const value = newCategoryInput.value.trim();
+        if (!value) return;
+        const exists = categories.some(c => c.toLowerCase() === value.toLowerCase());
+        if (exists) {
+          showStatus('Category already exists');
+          return;
+        }
+        categories.push(value);
+        saveCategories();
+        renderList(categories, categoriesListEl, deleteCategory, editCategory);
+        newCategoryInput.value = '';
+      });
+
+      addTagBtn.addEventListener('click', () => {
+        const value = newTagInput.value.trim();
+        if (!value) return;
+        const exists = tags.some(t => t.toLowerCase() === value.toLowerCase());
+        if (exists) {
+          showStatus('Tag already exists');
+          return;
+        }
+        tags.push(value);
+        saveTags();
+        renderList(tags, tagsListEl, deleteTag, editTag);
+        newTagInput.value = '';
+      });
+
+      csvDelimiterInput.addEventListener('change', saveExportSettings);
+
+      clearDataBtn.addEventListener('click', () => {
+        if (confirm('Clear all stored data? This cannot be undone.')) {
+          storage.clear(() => {
+            categories = [];
+            tags = [];
+            exportSettings = { delimiter: ',' };
+            initOptions();
+            showStatus('All data cleared');
+          });
+        }
+      });
+
+      function deleteCategory(index, item) {
+        if (!confirm(`Delete category "${item}"?`)) return;
+        categories.splice(index, 1);
+        saveCategories();
+        renderList(categories, categoriesListEl, deleteCategory, editCategory);
+      }
+
+      function deleteTag(index, item) {
+        if (!confirm(`Delete tag "${item}"?`)) return;
+        tags.splice(index, 1);
+        saveTags();
+        renderList(tags, tagsListEl, deleteTag, editTag);
+      }
+
+      function editCategory(index, oldValue) {
+        const newValue = prompt('Edit category:', oldValue);
+        if (!newValue) return;
+        const trimmed = newValue.trim();
+        if (!trimmed) return;
+        const duplicate = categories.some((c, i) => i !== index && c.toLowerCase() === trimmed.toLowerCase());
+        if (duplicate) {
+          showStatus('Category already exists');
+          return;
+        }
+        categories[index] = trimmed;
+        saveCategories();
+        renderList(categories, categoriesListEl, deleteCategory, editCategory);
+      }
+
+      function editTag(index, oldValue) {
+        const newValue = prompt('Edit tag:', oldValue);
+        if (!newValue) return;
+        const trimmed = newValue.trim();
+        if (!trimmed) return;
+        const duplicate = tags.some((t, i) => i !== index && t.toLowerCase() === trimmed.toLowerCase());
+        if (duplicate) {
+          showStatus('Tag already exists');
+          return;
+        }
+        tags[index] = trimmed;
+        saveTags();
+        renderList(tags, tagsListEl, deleteTag, editTag);
+      }
+
+      document.addEventListener('DOMContentLoaded', initOptions);
+    })();
+  </script>
+</body>
+</html>
