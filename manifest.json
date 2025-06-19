@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Competitor Collector",
+  "description": "Chrome extension to collect competitor URLs, tag and categorize them, view and manage collected entries, and export the list as a CSV file.",
+  "version": "1.0.0",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "downloads"
+  ],
+  "options_page": "optionsConfigurationUI.html",
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
