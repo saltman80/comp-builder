@@ -1,0 +1,24 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage URLs</title>
+  <link rel="stylesheet" href="stylePopupComponents.css">
+</head>
+<body>
+  <div class="popup-container">
+    <button id="save-url-btn" type="button">Save Current URL</button>
+    <form id="category-form">
+      <label for="category-select">Category:</label>
+      <select id="category-select">
+        <option value="" disabled selected>Select category</option>
+      </select>
+      <label for="new-category-input">New category:</label>
+      <input id="new-category-input" type="text" placeholder="New category" />
+    </form>
+    <ul id="entries-list"></ul>
+    <button id="export-csv-btn" type="button">Export to CSV</button>
+  </div>
+  <script src="popupListManager.js"></script>
+</body>
+</html>
