@@ -1,0 +1,145 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  width: 18.75rem;
+  margin: 0;
+  padding: 0.625rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fff;
+  color: #333;
+}
+
+#entries-list {
+  max-height: 12.5rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#entries-list::-webkit-scrollbar {
+  width: 0.375rem;
+}
+
+#entries-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+#entries-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 0.1875rem;
+}
+
+.entry-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.entry-item:last-child {
+  border-bottom: none;
+}
+
+.entry-item .entry-info {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-right: 0.3125rem;
+}
+
+.entry-item .entry-actions button {
+  margin: 0 0.125rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.entry-item .entry-actions button:hover {
+  color: #0056b3;
+}
+
+.entry-item .entry-actions button:disabled {
+  color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Generic popup buttons (Save, Export, Add) */
+body > button,
+#category-form button {
+  margin: 0.3125rem 0;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+body > button:hover,
+#category-form button:hover {
+  background-color: #0056b3;
+}
+
+body > button:disabled,
+#category-form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+#category-form {
+  display: flex;
+  gap: 0.3125rem;
+  margin: 0.625rem 0;
+}
+
+#category-form input,
+#category-form select {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+#category-form button {
+  flex: none;
+  width: auto;
+  padding: 0.375rem 0.75rem;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #e0e0e0;
+  color: #555;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.75rem;
+  border-radius: 0.1875rem;
+  margin-right: 0.25rem;
+}
+
+.tag:last-child {
+  margin-right: 0;
+}
+
+/* Focus styles for accessibility */
+body > button:focus,
+#category-form button:focus,
+.entry-item .entry-actions button:focus,
+#category-form input:focus,
+#category-form select:focus {
+  outline: 2px solid #0056b3;
+  outline-offset: 2px;
+}
